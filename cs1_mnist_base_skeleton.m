@@ -1,4 +1,3 @@
-
 clear all;
 close all;
 
@@ -21,6 +20,7 @@ close all;
 % These next lines of code read in two sets of MNIST digits that will be used for training and testing respectively.
 
 % training set (1500 images)
+
 train=csvread('mnist_train_1500.csv');
 trainsetlabels = train(:,785);
 train=train(:,1:784);
@@ -50,8 +50,10 @@ test(:,785)=zeros(200,1);
 figure;
 colormap('gray'); % this tells MATLAB to depict the image in grayscale
 testimage = reshape(test(1,[1:784]), [28 28]);
+% test image is the first image in the test set
 % we are reshaping the first row of 'test', columns 1-784 (since the 785th
 % column is going to be used for storing the centroid assignment.
+
 imagesc(testimage'); % this command plots an array as an image.  Type 'help imagesc' to learn more.
 
 %% After importing, the array train consists of 1500 rows and 785 columns.
@@ -62,8 +64,8 @@ imagesc(testimage'); % this command plots an array as an image.  Type 'help imag
 
 %% This next section of code calls the three functions you are asked to specify
 
-k= ; % set k
-max_iter= ; % set the number of iterations of the algorithm
+k= 8; % set k
+max_iter= 1000; % set the number of iterations of the algorithm
 
 %% The next line initializes the centroids.  Look at the initialize_centroids()
 % function, which is specified further down this file.
@@ -78,7 +80,7 @@ cost_iteration = zeros(max_iter, 1);
 
 for iter=1:max_iter
     
-      % FILL THIS IN!
+  k=k;% FILL THIS IN!
     
 end
 
@@ -104,7 +106,7 @@ for ind=1:k
     subplot(plotsize,plotsize,ind);
     
     imagesc(reshape(centr,[28 28])');
-    title(strcat('Centroid ',num2str(ind)))
+    title(strcat('Centroid ',num2str(ind)))\
 
 end
 
@@ -130,9 +132,16 @@ end
 % the vector and the assigned centroid.
 
 function [index, vec_distance] = assign_vector_to_centroid(data,centroids)
-
-% FILL THIS IN
-
+  % By default, this function assumes that size(data)=(1, 784)
+  [cRow, cCol] = size(centroids);
+  cNorm = [];
+  for cent=1:cRow
+    cNorm(cent) = norm(data(vectors,784) - centroids(cent,784));
+  cNorm = cNorm';
+  [vIndex, sorted] = sortrows(cNorm);
+  index = vIndex(1);
+  vec_distance = sorted(1);
+  end
 end
 
 
