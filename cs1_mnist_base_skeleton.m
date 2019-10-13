@@ -4,38 +4,37 @@ close all;
 %% In this script, you need to implement three functions as part of the k-means algorithm.
 % These steps will be repeated until the algorithm converges:
 
-  % 1. initialize_centroids
-  % This function sets the initial values of the centroids
-  
-  % 2. assign_vector_to_centroid
-  % This goes through the collection of all vectors and assigns them to
-  % centroid based on norm/distance
-  
-  % 3. update_centroids
-  % This function updates the location of the centroids based on the collection
-  % of vectors (handwritten digits) that have been assigned to that centroid.
+% 1. initialize_centroids
+% This function sets the initial values of the centroids
 
+% 2. assign_vector_to_centroid
+% This goes through the collection of all vectors and assigns them to
+% centroid based on norm/distance
+
+% 3. update_centroids
+% This function updates the location of the centroids based on the collection
+% of vectors (handwritten digits) that have been assigned to that centroid.
 
 %% Initialize Data Set
 % These next lines of code read in two sets of MNIST digits that will be used for training and testing respectively.
 
 % training set (1500 images)
 
-train=csvread('mnist_train_1500.csv');
-trainsetlabels = train(:,785);
-train=train(:,1:784);
-train(:,785)=zeros(1500,1);
+train = csvread('mnist_train_1500.csv');
+trainsetlabels = train(:, 785);
+train = train(:, 1:784);
+train(:, 785) = zeros(1500, 1);
 
 % testing set (200 images with 11 outliers)
-test=csvread('mnist_test_200_woutliers.csv');
+test = csvread('mnist_test_200_woutliers.csv');
 % store the correct test labels
-correctlabels = test(:,785);
-test=test(:,1:784);
+correctlabels = test(:, 785);
+test = test(:, 1:784);
 
 % now, zero out the labels in "test" so that you can use this to assign
 % your own predictions and evaluate against "correctlabels"
 % in the 'cs1_mnist_evaluate_test_set.m' script
-test(:,785)=zeros(200,1);
+test(:, 785) = zeros(200, 1);
 
 %% After initializing, you will have the following variables in your workspace:
 % 1. train (a 1500 x 785 array, containins the 1500 training images)
@@ -47,9 +46,9 @@ test(:,785)=zeros(200,1);
 % to do this, you need to use the reshape command, along with the transpose
 % operation.  For example, the following lines plot the first test image
 
-figure;
+figure('Name', 'Test Image');
 colormap('gray'); % this tells MATLAB to depict the image in grayscale
-testimage = reshape(test(1,[1:784]), [28 28]);
+testimage = reshape(test(1, [1:784]), [28 28]);
 % test image is the first image in the test set
 % we are reshaping the first row of 'test', columns 1-784 (since the 785th
 % column is going to be used for storing the centroid assignment.
@@ -64,13 +63,14 @@ imagesc(testimage'); % this command plots an array as an image.  Type 'help imag
 
 %% This next section of code calls the three functions you are asked to specify
 
-k= 8; % set k
-max_iter= 1000; % set the number of iterations of the algorithm
+k = 10; % set k
+max_iter = 1000; % set the number of iterations of the algorithm
 
 %% The next line initializes the centroids.  Look at the initialize_centroids()
 % function, which is specified further down this file.
 
-centroids=initialize_centroids(train,k);
+centroids = initialize_centroids(train, k);
+[index, dist] = assign_vector_to_centroid(train(1, :), centroids);
 
 %% Initialize an array that will store k-means cost at each iteration
 
@@ -78,10 +78,10 @@ cost_iteration = zeros(max_iter, 1);
 
 %% This for-loop enacts the k-means algorithm
 
-for iter=1:max_iter
-    
-  k=k;% FILL THIS IN!
-    
+for iter = 1:max_iter
+
+    %assign_vector_to_centroid(train(1,:),centroids);
+
 end
 
 %% This section of code plots the k-means cost as a function of the number
@@ -89,7 +89,6 @@ end
 
 figure;
 % FILL THIS IN!
-
 
 %% This next section of code will make a plot of all of the centroids
 % Again, use help <functionname> to learn about the different functions
@@ -100,13 +99,13 @@ colormap('gray');
 
 plotsize = ceil(sqrt(k));
 
-for ind=1:k
-    
-    centr=centroids(ind,[1:784]);
-    subplot(plotsize,plotsize,ind);
-    
-    imagesc(reshape(centr,[28 28])');
-    title(strcat('Centroid ',num2str(ind)))\
+for ind = 1:k
+
+    centr = centroids(ind, [1:784]);
+    subplot(plotsize, plotsize, ind);
+
+    imagesc(reshape(centr, [28 28])');
+    title(strcat('Centroid ', num2str(ind)))
 
 end
 
@@ -116,13 +115,13 @@ end
 % *Feel free to experiment.*
 % Note that this function takes two inputs and emits one output (y).
 
-function y=initialize_centroids(data,num_centroids)
+function y = initialize_centroids(data, num_centroids)
 
-random_index=randperm(size(data,1));
+    random_index = randperm(size(data, 1));
 
-centroids=data(random_index(1:num_centroids),:);
+    centroids = data(random_index(1:num_centroids), :);
 
-y=centroids;
+    y = centroids;
 
 end
 
@@ -131,27 +130,47 @@ end
 % It returns the index of the assigned centroid and the distance between
 % the vector and the assigned centroid.
 
-function [index, vec_distance] = assign_vector_to_centroid(data,centroids)
-  % By default, this function assumes that size(data)=(1, 784)
-  [cRow, cCol] = size(centroids);
-  cNorm = [];
-  for cent=1:cRow
-    cNorm(cent) = norm(data(vectors,784) - centroids(cent,784));
-  cNorm = cNorm';
-  [vIndex, sorted] = sortrows(cNorm);
-  index = vIndex(1);
-  vec_distance = sorted(1);
-  end
-end
+function [index, vec_distance] = assign_vector_to_centroid(data, centroids)
+    % By default, this function assumes that size(data)=(1, 784)
+    [cRow, cCol] = size(centroids);
+    cNorm = zeros(1, cRow);
 
+    for cent = 1:cRow
+        cNorm(cent) = norm(data(:, 1:784) - centroids(cent, 1:784));
+    end
+
+    cNorm = cNorm';
+    [sorted, vIndex] = sortrows(cNorm);
+    index = vIndex(1);
+    vec_distance = sorted(1);
+end
 
 %% Function to compute new centroids using the mean of the vectors currently assigned to the centroid.
 % This function takes the set of training images and the value of k.
 % It returns a new set of centroids based on the current assignment of the
 % training images.
 
-function new_centroids=update_Centroids(data,K)
+function new_centroids = update_Centroids(data, K)
+    %already assuing data would have the row number of 785
+    trainSize = size(data);
+    vectorNum = trainSize(1); % # of vectors in the set data
+    centSet = zeros(vectorNum, 1);
+    % vector that contains the index of centroid in place of each
+    for vector = 1:trainSize
+        [vIndex, ~] = assign_vector_to_centroid(data(vector, :), centroids);
+        centSet(vector, 1) = vIndex;
+    end
 
-% FILL THIS IN
+    trainGroup = cat(2, data(:, 1:784), centSet);
+    %labelling each vector in train set
 
+    temp = zeros(K, 1)
+
+    for i = 1:K
+        subsize = size(data(data(:, 785) == i));
+        subsize = subsize(1);
+        temp(i) = sum(data(:, (data(:, 785) == i))) / subsize;
+    end
+
+    new_centroids = temp;
 end
