@@ -64,13 +64,19 @@ imagesc(testimage'); % this command plots an array as an image.  Type 'help imag
 %% This next section of code calls the three functions you are asked to specify
 
 k = 10; % set k
-max_iter = 1000; % set the number of iterations of the algorithm
+max_iter = 500; % set the number of iterations of the algorithm
 
 %% The next line initializes the centroids.  Look at the initialize_centroids()
 % function, which is specified further down this file.
 
 centroids = initialize_centroids(train, k);
-[index, dist] = assign_vector_to_centroid(train(1, :), centroids);
+[row,~] = size(train);
+for vector=1:row
+    [train(vector, 785), ~] = assign_vector_to_centroid(train(vector,1:785), centroids);
+end
+showVecImage(688, train);
+
+%new_cent = update_Centroids(train, k);
 
 %% Initialize an array that will store k-means cost at each iteration
 
@@ -79,9 +85,10 @@ cost_iteration = zeros(max_iter, 1);
 %% This for-loop enacts the k-means algorithm
 
 for iter = 1:max_iter
-
-    %assign_vector_to_centroid(train(1,:),centroids);
-
+    [row,~] = size(train);
+    for vector=1:row
+        [train(vector, 785), ~] = assign_vector_to_centroid(train(vector,1:785), centroids);
+    end
 end
 
 %% This section of code plots the k-means cost as a function of the number
@@ -131,7 +138,7 @@ end
 % the vector and the assigned centroid.
 
 function [index, vec_distance] = assign_vector_to_centroid(data, centroids)
-    % By default, this function assumes that size(data)=(1, 784)
+    % By default, this function assumes that size(data)=(1, 785)
     [cRow, cCol] = size(centroids);
     cNorm = zeros(1, cRow);
 
@@ -151,26 +158,21 @@ end
 % training images.
 
 function new_centroids = update_Centroids(data, K)
-    %already assuing data would have the row number of 785
-    trainSize = size(data);
-    vectorNum = trainSize(1); % # of vectors in the set data
-    centSet = zeros(vectorNum, 1);
-    % vector that contains the index of centroid in place of each
-    for vector = 1:trainSize
-        [vIndex, ~] = assign_vector_to_centroid(data(vector, :), centroids);
-        centSet(vector, 1) = vIndex;
-    end
-
-    trainGroup = cat(2, data(:, 1:784), centSet);
-    %labelling each vector in train set
-
-    temp = zeros(K, 1)
-
+    % already assuing data would have the row number of 785
+    %assuming the 785th is already the labeled
+    centSet= data(:,785);
+    temp = zeros(K, 785);
+    disp(size(temp))
     for i = 1:K
-        subsize = size(data(data(:, 785) == i));
-        subsize = subsize(1);
-        temp(i) = sum(data(:, (data(:, 785) == i))) / subsize;
+        [subsize , ~] = size(centSet(centSet == i));
+        temp(i,1:784) = sum(data((centSet == i), 1:784)) / subsize;
     end
-
     new_centroids = temp;
+end
+
+function resultImage = showVecImage(vectorNum, data)
+    figure('Name', 'Showing Image from Vector')
+    colormap('gray');
+    resultImage = reshape(data(vectorNum, [1:784]), [28 28]);
+    imagesc(resultImage');
 end
