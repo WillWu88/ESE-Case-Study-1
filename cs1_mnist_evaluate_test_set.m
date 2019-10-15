@@ -12,7 +12,7 @@
 
 predictions = zeros(200, 1);
 outliers = zeros(200, 1);
-centroid_labels = [9;4;3;6;2;8;6;7;8;0;2;0;1;1;2;5;0;8;9;3];
+centroid_labels = [1;8;5;1;3;6;3;4;5;8;4;3;7;0;2;6;9;7;0;1];
 
 % loop through the test set, figure out the predicted number
 for i = 1:200

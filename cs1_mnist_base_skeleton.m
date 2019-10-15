@@ -71,6 +71,7 @@ max_iter = 1500; % set the number of iterations of the algorithm
 % function, which is specified further down this file.
 
 centroids = initialize_centroids(train, k);
+kPlus = kPlusInit(train, k);
 
 %new_cent = update_Centroids(train, k);
 
@@ -81,13 +82,13 @@ cost_iteration = zeros(max_iter, 1);
 %% This for-loop enacts the k-means algorithm
 
 for iter = 1:max_iter
-    [row,~] = size(train);
-    for vector=1:row
-        [train(vector, 785), ~] = assign_vector_to_centroid(train(vector,1:785), centroids);
-    end
-    centroids = update_Centroids(train,20);
+    % [row,~] = size(train);
+    % for vector=1:row
+    %     [train(vector, 785), ~] = assign_vector_to_centroid(train(vector,1:785), centroids);
+    % end
+    % centroids = update_Centroids(train,k);
 end
-showVecImage(68, train);
+%showVecImage(68, train);
 
 %% This section of code plots the k-means cost as a function of the number
 % of iterations
@@ -172,4 +173,28 @@ function resultImage = showVecImage(vectorNum, data)
     colormap('gray');
     resultImage = reshape(data(vectorNum, [1:784]), [28 28]);
     imagesc(resultImage');
+end
+
+% This function implements the k++ algorithm for initializing the centroids
+% This function takes a data set and an integer K, which specify the number of centroids
+% It returns the starting centroids for the data set based on the K++ algorithm
+function kPlusCentroids = kPlusInit(data, K)
+  random_index = randperm(size(data, 1));
+  centroids = [];
+  c1 = data(random_index(1),:);
+  disp(c1);
+  centroids(1,1:size(c1,2)) = c1;
+  dSquared = zeros(size(data,1),1);
+  temp = [];
+  for index = 1:1
+    for vectors=1:size(dSquared,1)
+      for i=1:size(centroids,1)
+        temp(i) = norm(data(vectors)-centroids(i))^2;
+      end
+      temp = temp';
+      [sorted, vIndex] = sortrows(temp,'descend');
+      sorted(1) = dSquared(vectors);
+    end
+  end
+  kPlusCentroids = centroids;
 end
