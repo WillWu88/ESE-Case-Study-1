@@ -63,18 +63,14 @@ imagesc(testimage'); % this command plots an array as an image.  Type 'help imag
 
 %% This next section of code calls the three functions you are asked to specify
 
-k = 10; % set k
-max_iter = 500; % set the number of iterations of the algorithm
+k = 20; % set k
+max_iter = 1500; % set the number of iterations of the algorithm
+
 
 %% The next line initializes the centroids.  Look at the initialize_centroids()
 % function, which is specified further down this file.
 
 centroids = initialize_centroids(train, k);
-[row,~] = size(train);
-for vector=1:row
-    [train(vector, 785), ~] = assign_vector_to_centroid(train(vector,1:785), centroids);
-end
-showVecImage(688, train);
 
 %new_cent = update_Centroids(train, k);
 
@@ -89,7 +85,9 @@ for iter = 1:max_iter
     for vector=1:row
         [train(vector, 785), ~] = assign_vector_to_centroid(train(vector,1:785), centroids);
     end
+    centroids = update_Centroids(train,20);
 end
+showVecImage(68, train);
 
 %% This section of code plots the k-means cost as a function of the number
 % of iterations
@@ -162,7 +160,6 @@ function new_centroids = update_Centroids(data, K)
     %assuming the 785th is already the labeled
     centSet= data(:,785);
     temp = zeros(K, 785);
-    disp(size(temp))
     for i = 1:K
         [subsize , ~] = size(centSet(centSet == i));
         temp(i,1:784) = sum(data((centSet == i), 1:784)) / subsize;
