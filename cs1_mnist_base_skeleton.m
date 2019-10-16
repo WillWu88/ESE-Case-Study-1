@@ -63,16 +63,15 @@ imagesc(testimage'); % this command plots an array as an image.  Type 'help imag
 
 %% This next section of code calls the three functions you are asked to specify
 
-k = 20; % set k
-max_iter = 1500; % set the number of iterations of the algorithm
-
+k = 30; % set k
+max_iter = 9; % set the number of iterations of the algorithm
 
 %% The next line initializes the centroids.  Look at the initialize_centroids()
 % function, which is specified further down this file.
 
 centroids = initialize_centroids(train, k);
 kPlus = kPlusInit(train, k);
-
+%[kMeaned, centroids] = kmeans(train,k);
 %new_cent = update_Centroids(train, k);
 
 %% Initialize an array that will store k-means cost at each iteration
@@ -84,10 +83,11 @@ cost_iteration = zeros(max_iter, 1);
 for iter = 1:max_iter
     % [row,~] = size(train);
     % for vector=1:row
-    %     [train(vector, 785), ~] = assign_vector_to_centroid(train(vector,1:785), centroids);
+    %     [train(vector, 785), ~] = assign_vector_to_centroid(train(vector,1:785), kPlus);
     % end
     % centroids = update_Centroids(train,k);
 end
+
 %showVecImage(68, train);
 
 %% This section of code plots the k-means cost as a function of the number
@@ -138,7 +138,7 @@ end
 
 function [index, vec_distance] = assign_vector_to_centroid(data, centroids)
     % By default, this function assumes that size(data)=(1, 785)
-    [cRow, cCol] = size(centroids);
+    [cRow, ~] = size(centroids);
     cNorm = zeros(1, cRow);
 
     for cent = 1:cRow
@@ -159,12 +159,14 @@ end
 function new_centroids = update_Centroids(data, K)
     % already assuing data would have the row number of 785
     %assuming the 785th is already the labeled
-    centSet= data(:,785);
+    centSet = data(:, 785);
     temp = zeros(K, 785);
+
     for i = 1:K
-        [subsize , ~] = size(centSet(centSet == i));
-        temp(i,1:784) = sum(data((centSet == i), 1:784)) / subsize;
+        [subsize, ~] = size(centSet(centSet == i));
+        temp(i, 1:784) = sum(data((centSet == i), 1:784)) / subsize;
     end
+
     new_centroids = temp;
 end
 
@@ -179,22 +181,22 @@ end
 % This function takes a data set and an integer K, which specify the number of centroids
 % It returns the starting centroids for the data set based on the K++ algorithm
 function kPlusCentroids = kPlusInit(data, K)
-  random_index = randperm(size(data, 1));
-  centroids = [];
-  c1 = data(random_index(1),:);
-  disp(c1);
-  centroids(1,1:size(c1,2)) = c1;
-  dSquared = zeros(size(data,1),1);
-  temp = [];
-  for index = 1:1
-    for vectors=1:size(dSquared,1)
-      for i=1:size(centroids,1)
-        temp(i) = norm(data(vectors)-centroids(i))^2;
-      end
-      temp = temp';
-      [sorted, vIndex] = sortrows(temp,'descend');
-      sorted(1) = dSquared(vectors);
+    random_index = randperm(size(data, 1), 1);
+    centroids = [];
+    c1 = data(random_index, :);
+    centroids(1, 1:size(c1, 2)) = c1;
+    dSquared = zeros(size(data, 1), 1);
+    %list that keeps track of vector distance squared
+
+    for index = 2:K
+
+        for vectorIndex = 1:size(data, 1)
+            [~, dSquared(vectorIndex)] = assign_vector_to_centroid(data(vectorIndex, 1:785), centroids);
+        end
+        dSquared = dSquared.^2;
+        cIndex = randsrc(1, 1, [1:size(data, 1); (dSquared' ./ sum(dSquared))]);
+        centroids(index, 1:size(data, 2)) = data(cIndex, 1:size(data, 2));
     end
-  end
-  kPlusCentroids = centroids;
+
+    kPlusCentroids = centroids;
 end
