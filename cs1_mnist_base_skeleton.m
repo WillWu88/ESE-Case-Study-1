@@ -71,7 +71,7 @@ max_iter = 9; % set the number of iterations of the algorithm
 
 centroids = initialize_centroids(train, k);
 kPlus = kPlusInit(train, k);
-%[kMeaned, centroids] = kmeans(train,k);
+
 %new_cent = update_Centroids(train, k);
 
 %% Initialize an array that will store k-means cost at each iteration
@@ -81,11 +81,11 @@ cost_iteration = zeros(max_iter, 1);
 %% This for-loop enacts the k-means algorithm
 
 for iter = 1:max_iter
-    % [row,~] = size(train);
-    % for vector=1:row
-    %     [train(vector, 785), ~] = assign_vector_to_centroid(train(vector,1:785), kPlus);
-    % end
-    % centroids = update_Centroids(train,k);
+    [row,~] = size(train);
+    for vector=1:row
+        [train(vector, 785), ~] = assign_vector_to_centroid(train(vector,1:785), kPlus);
+    end
+    centroids = update_Centroids(train,k);
 end
 
 %showVecImage(68, train);
